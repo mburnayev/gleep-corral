@@ -11,11 +11,14 @@ This system is comprised of these components:
 Here is an abstracted visualization of the project that the above text describes:
 (picture)
 
+Users will first be brought to the webapp's main page where they can generate a "gleep"
+
 ## Technologies Used
 - Typescript + Next.JS
 - Google Gemini Flash 2.5
 - Google Gemini 2.0 Flash Preview Image Generation
 - Firebase
+    - Studio
     - App Hosting
     - Authentication
     - Firestore
@@ -26,6 +29,9 @@ Task | Notes | Resolved?
 ~~Set up new Raspberry Pi | - | ✅~~
 Set up Python environment | RPi (and Python, subsequently) not needed | ❎
 Set up new Firebase project | - | ✅
+Create slot machine graphic |  | ✅
+Create slot machine spin animation | - | ✅
 Create Firestore database and R2 bucket | in progress | -
-Create slot machine graphic | in progress | -
-Create slot machine spin animation | - | -
+Get API key(s) for Gemini models | in progress | -
+Add API calls to card component | - | -
+
