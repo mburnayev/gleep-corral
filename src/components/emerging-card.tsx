@@ -47,28 +47,29 @@ export function EmergingCard({ revealed, onReset }: EmergingCardProps) {
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       className={cn(
-        'absolute bottom-[1%] left-1/2 -translate-x-1/2 w-[280px] h-[680px] cursor-pointer group',
-        'transition-all duration-1000 ease-&lsqb;cubic-bezier(0.68,-0.55,0.27,1.55)&rsqb',
-        'origin-bottom',
+        'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[384px] h-[512px] cursor-pointer group',
+        'transition-all duration-1000',
+        'origin-center',
         revealed
-          ? 'opacity-100 translate-y-0 scale-100'
-          : 'opacity-0 -translate-y-[20px] scale-95 pointer-events-none'
+          ? 'opacity-100 scale-100'
+          : 'opacity-0 scale-95 pointer-events-none'
       )}
       style={{ perspective: '1000px' }}
     >
       <Card
         style={cardStyle}
         className={cn(
-          'w-full h-full bg-black/30 backdrop-blur-sm border-2 border-accent/50 shadow-2xl shadow-accent/20 text-center flex flex-col justify-center items-center'
+          'w-[384px] h-[512px] bg-black/30 backdrop-blur-sm border-2 border-accent/50 shadow-2xl shadow-accent/20 text-center flex flex-col justify-center items-center'
         )}
       >
         <CardHeader>
           <CardTitle className="font-headline text-accent flex items-center gap-2">
-            <Sparkles className="w-6 h-6" /> Gleep name
+            <h2>Gleep</h2>
           </CardTitle>
+          <img src="/test.png" alt="Gleep"/>
         </CardHeader>
         <CardContent>
-          <p className="text-foreground/80">Gleep card text</p>
+          <p>Here is some placeholder text lorem ipsum dolor etc blah blah blah blah</p>
         </CardContent>
       </Card>
     </div>
