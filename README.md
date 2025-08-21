@@ -9,7 +9,7 @@ This system is comprised of these components:
 - Cloudflare R2 (more data storage)
 
 Here is an abstracted visualization of the project that the above text describes:
-(picture)
+<img width="948" height="542" alt="Screenshot 2025-06-23 at 1 20 41 PM" src="https://github.com/user-attachments/assets/51c0f68e-16b7-4463-86f2-a26223b6ec05" />
 
 Users will first be brought to the webapp's main page where they can generate a "gleep"
 
