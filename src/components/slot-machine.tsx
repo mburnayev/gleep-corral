@@ -4,6 +4,8 @@ import { useState, useCallback, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { SlotReels } from './slot-reels';
 import { EmergingCard } from './emerging-card';
+import dotenv from 'dotenv';
+dotenv.config();
 
 export function SlotMachine() {
   const [state, setState] = useState<'idle' | 'spinning' | 'revealed'>('idle');

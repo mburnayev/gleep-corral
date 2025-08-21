@@ -26,12 +26,12 @@ Users will first be brought to the webapp's main page where they can generate a 
 ## Project Timeline and Obstacles Breakdown
 Task | Notes | Resolved?
 --- | --- | ---
-~~Set up new Raspberry Pi | - | ✅~~
+~~Set up new Raspberry Pi~~ | - | ~~✅~~
 Set up Python environment | RPi (and Python, subsequently) not needed | ❎
 Set up new Firebase project | - | ✅
-Create slot machine graphic |  | ✅
+Create slot machine graphic | - | ✅
 Create slot machine spin animation | - | ✅
 Create Firestore database and R2 bucket | in progress | -
-Get API key(s) for Gemini models | in progress | -
+Get API key(s) for Gemini models | generated it ages ago, just never added it | ✅
 Add API calls to card component | - | -
 
