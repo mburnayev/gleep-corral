@@ -4,11 +4,10 @@ import { useState, useCallback, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { SlotReels } from './slot-reels';
 import { EmergingCard } from './emerging-card';
-import dotenv from 'dotenv';
-dotenv.config();
 
 export function SlotMachine() {
   const [state, setState] = useState<'idle' | 'spinning' | 'revealed'>('idle');
+  const [finalIndices, setFinalIndices] = useState<number[]>([0, 0, 0]);
 
   const handleClick = useCallback(() => {
     if (state === 'spinning') return;
@@ -30,11 +29,15 @@ export function SlotMachine() {
     }
   }, [state]);
 
+  const handleFinalIndices = useCallback((indices: number[]) => {
+    setFinalIndices(indices);
+  }, []);
+
   useEffect(() => {
     if (state === 'spinning') {
       const timer = setTimeout(() => {
         setState('revealed');
-      }, 3000); // Total spin duration
+      }, 2000); // Total spin duration
       return () => clearTimeout(timer);
     }
   }, [state]);
@@ -66,7 +69,7 @@ export function SlotMachine() {
            {/* Reels Window */}
            <div className="absolute top-[180px] left-1/2 -translate-x-1/2 w-[90%] h-[120px] sm:h-[130px] bg-black/70 rounded-lg border-4 border-black p-4 flex justify-around items-center overflow-hidden shadow-inner shadow-black/80">
              <div className="w-full h-full bg-grid-zinc-400/10 [mask-image:linear-gradient(to_bottom,transparent,white_10%,white_90%,transparent)]">
-                <SlotReels spinning={state === 'spinning'} />
+                <SlotReels spinning={state === 'spinning'} onFinalIndices={handleFinalIndices} />
              </div>
            </div>
 
@@ -80,7 +83,7 @@ export function SlotMachine() {
             <div className="absolute bottom-0 w-full h-12 bg-black/50 border-t-4 border-black" />
         </div>
       </div>
-      <EmergingCard revealed={state === 'revealed'} onReset={handleReset} />
+      <EmergingCard revealed={state === 'revealed'} onReset={handleReset} icons={finalIndices} />
     </div>
   );
 }

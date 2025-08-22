@@ -3,23 +3,61 @@
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/card';
-import { Sparkles } from 'lucide-react';
-import { genkit } from 'genkit';
-import { googleAI } from '@genkit-ai/googleai';
+import { GoogleGenAI, Modality } from '@google/genai';
+// import dotenv from 'dotenv';
+require('dotenv').config();
 
-// export const ai = genkit({
-//   plugins: [googleAI()],
-//   model: 'googleai/gemini-2.0-flash',
-// });
+const GEMINI_API_KEY = process.env.GEMINI_FLASH_KEY;
+
+export const textAI = new GoogleGenAI({apiKey: GEMINI_API_KEY});
+export const imageAI = new GoogleGenAI({apiKey: GEMINI_API_KEY});
 
 type EmergingCardProps = {
   revealed: boolean;
   onReset: () => void;
+  icons: number[];
 };
 
-export function EmergingCard({ revealed, onReset }: EmergingCardProps) {
-  const [rotation, setRotation] = useState({ rotateX: 0, rotateY: 0 });
+async function GenerateCardText({icons} : EmergingCardProps) {
+  var textPrompt = ""
+  var imagePrompt = ""
+   
+  if (icons[0] === icons[1] && icons[1] === icons[2]) {
+    textPrompt = "Generate a short funny limerick and cite a famous religious or war figure"
+    imagePrompt = "Generate a 256x256 stock image of a large non-pig farm animal with a heavenly glow wearing 3 huge hats on top of each other"
+  }
+  else if (icons[0] === icons[1] || icons[1] === icons[2] || icons[0] === icons[2]) {
+    textPrompt = "Generate a funny haiku and site and cite a celebrity"
+    imagePrompt = "Generate a 256x256 stock image of a small non-pig animal wearing two hats on top of each other"
+  }
+  else {
+    textPrompt = "Generate a short funny phrase and cite a politician"
+    imagePrompt = "Generate a 256x256 stock image of a small pig wearing a hat"
+  }
 
+  // const imageResponse = await imageAI.models.generateContent({
+  //   model: "gemini-2.0-flash-preview-image-generation",
+  //   contents: imagePrompt,
+  //   config: {
+  //     responseModalities: [Modality.TEXT, Modality.IMAGE],
+  //     thinkingConfig: {thinkingBudget: 0}
+  //   }
+  // });
+
+  const textResponse = await textAI.models.generateContent({
+    model: "gemini-2.5-flash",
+    contents: textPrompt,
+    config: {
+      thinkingConfig: {thinkingBudget: 0}
+    }
+  });
+
+  return textResponse;
+}
+
+export function EmergingCard({ revealed, onReset, icons }: EmergingCardProps) {
+  const [rotation, setRotation] = useState({ rotateX: 0, rotateY: 0 });
+  
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const card = e.currentTarget;
     const { width, height, left, top } = card.getBoundingClientRect();
@@ -39,7 +77,7 @@ export function EmergingCard({ revealed, onReset }: EmergingCardProps) {
   const cardStyle = {
     transform: `perspective(1000px) rotateX(${rotation.rotateX}deg) rotateY(${rotation.rotateY}deg)`,
     transition: 'transform 0.1s ease-out',
-  };
+  };  
 
   return (
     <div
@@ -66,10 +104,10 @@ export function EmergingCard({ revealed, onReset }: EmergingCardProps) {
           <CardTitle className="font-headline text-accent flex items-center gap-2">
             <h2>Gleep</h2>
           </CardTitle>
-          <img src="/test.png" alt="Gleep"/>
+          <img src="/test.png" alt="Gleep" />
         </CardHeader>
         <CardContent>
-          <p>Here is some placeholder text lorem ipsum dolor etc blah blah blah blah</p>
+          <p>Example Text</p>
         </CardContent>
       </Card>
     </div>

@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 
 type SlotReelsProps = {
   spinning: boolean;
+  onFinalIndices?: (indices: number[]) => void;
 };
 
 const icons: ComponentType<{ className?: string }>[] = [Gem, Star, Cherry, Citrus, Bell, Crown, Rocket];
@@ -43,18 +44,20 @@ const Reel = ({ spinning, finalIconIndex, delay }: { spinning: boolean, finalIco
   );
 };
 
-export function SlotReels({ spinning }: SlotReelsProps) {
+export function SlotReels({ spinning, onFinalIndices }: SlotReelsProps) {
   const [finalIndices, setFinalIndices] = useState([0, 0, 0]);
 
   useEffect(() => {
     if (spinning) {
-      setFinalIndices([
+      const newIndices = [
         Math.floor(Math.random() * icons.length),
         Math.floor(Math.random() * icons.length),
         Math.floor(Math.random() * icons.length),
-      ]);
+      ];
+      setFinalIndices(newIndices);
+      onFinalIndices?.(newIndices);
     }
-  }, [spinning]);
+  }, [spinning, onFinalIndices]);
 
   return (
     <div className="flex w-full h-full">
