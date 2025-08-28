@@ -1,16 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/card';
-import { GoogleGenAI, Modality } from '@google/genai';
-// import dotenv from 'dotenv';
-require('dotenv').config();
+// import { GoogleGenAI, Modality } from '@google/genai';
+import { createClient } from '@supabase/supabase-js';
 
-const GEMINI_API_KEY = process.env.GEMINI_FLASH_KEY;
+const SUPABASE_URL = "https://qunlvbcbdxdbyhzqlzor.supabase.co"
 
-export const textAI = new GoogleGenAI({apiKey: GEMINI_API_KEY});
-export const imageAI = new GoogleGenAI({apiKey: GEMINI_API_KEY});
+const supabase = createClient(
+  SUPABASE_URL,
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF1bmx2YmNiZHhkYnloenFsem9yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMjA5OTMsImV4cCI6MjA3MTg5Njk5M30.IJcWQU0xe_2DQhFSqHMjehQtI-pOVutj4mCiCC_egd4'
+);
 
 type EmergingCardProps = {
   revealed: boolean;
@@ -18,10 +19,11 @@ type EmergingCardProps = {
   icons: number[];
 };
 
-async function GenerateCardText({icons} : EmergingCardProps) {
+async function GenerateCardText({ icons }: EmergingCardProps) {
   var textPrompt = ""
   var imagePrompt = ""
-   
+  var textResponse = ""
+
   if (icons[0] === icons[1] && icons[1] === icons[2]) {
     textPrompt = "Generate a short funny limerick and cite a famous religious or war figure"
     imagePrompt = "Generate a 256x256 stock image of a large non-pig farm animal with a heavenly glow wearing 3 huge hats on top of each other"
@@ -35,6 +37,7 @@ async function GenerateCardText({icons} : EmergingCardProps) {
     imagePrompt = "Generate a 256x256 stock image of a small pig wearing a hat"
   }
 
+  // TODO: move this to supabase
   // const imageResponse = await imageAI.models.generateContent({
   //   model: "gemini-2.0-flash-preview-image-generation",
   //   contents: imagePrompt,
@@ -44,20 +47,53 @@ async function GenerateCardText({icons} : EmergingCardProps) {
   //   }
   // });
 
-  const textResponse = await textAI.models.generateContent({
-    model: "gemini-2.5-flash",
-    contents: textPrompt,
-    config: {
-      thinkingConfig: {thinkingBudget: 0}
-    }
+  const { data, error } = await supabase.functions.invoke('gemini-proxy', {
+    body: { name: 'Functions', prompt: textPrompt },
   });
+  textResponse = data.candidates[0].content.parts[0].text;
 
   return textResponse;
 }
 
 export function EmergingCard({ revealed, onReset, icons }: EmergingCardProps) {
   const [rotation, setRotation] = useState({ rotateX: 0, rotateY: 0 });
-  
+  const [generatedText, setGeneratedText] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let aborted = false;
+
+    async function generateText() {
+      if (!revealed) return;
+
+      setIsLoading(true);
+      setError(null);
+      setGeneratedText('');
+
+      try {
+        const response = await GenerateCardText({ revealed, onReset, icons });
+        if (!aborted) {
+          setGeneratedText(response || 'No text generated');
+        }
+      } catch (err: any) {
+        if (!aborted) {
+          setError(err?.message || 'Failed to generate text');
+        }
+      } finally {
+        if (!aborted) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    generateText();
+
+    return () => {
+      aborted = true;
+    };
+  }, [revealed, icons, onReset]);
+
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const card = e.currentTarget;
     const { width, height, left, top } = card.getBoundingClientRect();
@@ -77,7 +113,7 @@ export function EmergingCard({ revealed, onReset, icons }: EmergingCardProps) {
   const cardStyle = {
     transform: `perspective(1000px) rotateX(${rotation.rotateX}deg) rotateY(${rotation.rotateY}deg)`,
     transition: 'transform 0.1s ease-out',
-  };  
+  };
 
   return (
     <div
@@ -107,7 +143,15 @@ export function EmergingCard({ revealed, onReset, icons }: EmergingCardProps) {
           <img src="/test.png" alt="Gleep" />
         </CardHeader>
         <CardContent>
-          <p>Example Text</p>
+          {isLoading ? (
+            <p className="text-foreground/60">Generating text...</p>
+          ) : error ? (
+            <p className="text-red-400">Error: {error}</p>
+          ) : generatedText ? (
+            <p className="text-foreground/80 whitespace-pre-wrap">{generatedText}</p>
+          ) : (
+            <p className="text-foreground/60">No text generated</p>
+          )}
         </CardContent>
       </Card>
     </div>

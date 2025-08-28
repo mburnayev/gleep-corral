@@ -34,8 +34,9 @@ Set up new Firebase project | - | ✅
 Create slot machine graphic | - | ✅
 Create slot machine spin animation | - | ✅
 Get API key(s) for Gemini models | generated it ages ago, just never added it | ✅
-Add API calls to card component | in progress | -
-Hide API key calling | in progress | -
-Create Firestore database and R2 bucket | - | -
+Hide API key calling | After some research, found that Supabase has a generous free tier for Edge (Cloud) Functions and made that my calling backend B) | ✅
+Add API calls to card component for text | phew | ✅
+Add API calls to card component for images | in progress | -
+Create Firestore database and R2 bucket | might choose Supabase for textual storage since I'm using Supabase anyway? Tech stack remains the same size though | -
 
 
