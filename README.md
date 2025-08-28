@@ -40,6 +40,7 @@ Hide API key calling | After some research, found that Supabase has a generous f
 Add API calls to card component for text | phew | ✅
 Refine text prompts to return exactly one result | in progress | -
 Add API calls to card component for images | in progress | -
+Deploy app via Firebase hosting | in progress | -
 Create Firestore database and R2 bucket | might choose Supabase for textual storage since I'm using Supabase anyway? Tech stack remains the same size though | -
 
 
