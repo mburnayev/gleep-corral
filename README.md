@@ -19,7 +19,7 @@ Here is an abstraction of the major project flows that the above text describes:
 - Typescript + Next.JS
 - Google Gemini Flash 2.5
 - Google Gemini 2.0 Flash Preview Image Generation
-- Supabase
+- Supabase Edge Functions
 - Cloudflare R2
 - Firebase
     - Studio
