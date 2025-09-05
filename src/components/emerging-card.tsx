@@ -15,7 +15,7 @@ const supabase = createClient(
 
 type EmergingCardProps = {
   revealed: boolean;
-  onReset: () => void;
+  onReset: () => void
   icons: number[];
 };
 
@@ -24,16 +24,17 @@ async function GenerateCardText({ icons }: EmergingCardProps) {
   var imagePrompt = ""
   var textResponse = ""
 
+  console.log('GenerateCardText received icons:', icons);
   if (icons[0] === icons[1] && icons[1] === icons[2]) {
-    textPrompt = "Generate a short funny limerick and cite a famous religious or war figure"
+    textPrompt = "Generate ONLY one funny haiku and site and cite an ancient religious or war figure in the form [haiku] - [figure]"
     imagePrompt = "Generate a 256x256 stock image of a large non-pig farm animal with a heavenly glow wearing 3 huge hats on top of each other"
   }
   else if (icons[0] === icons[1] || icons[1] === icons[2] || icons[0] === icons[2]) {
-    textPrompt = "Generate a funny haiku and site and cite a celebrity"
+    textPrompt = "Generate ONLY one short, nonsensical funny phrase and cite a politician who isn't a US President past Barack Obama in the form [phrase] - [politician]"
     imagePrompt = "Generate a 256x256 stock image of a small non-pig animal wearing two hats on top of each other"
   }
   else {
-    textPrompt = "Generate a short funny phrase and cite a politician"
+    textPrompt = "Generate ONLY 1 farm animal noise"
     imagePrompt = "Generate a 256x256 stock image of a small pig wearing a hat"
   }
 
