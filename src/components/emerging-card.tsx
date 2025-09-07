@@ -24,17 +24,16 @@ async function GenerateCardText({ icons }: EmergingCardProps) {
   var imagePrompt = ""
   var textResponse = ""
 
-  console.log('GenerateCardText received icons:', icons);
   if (icons[0] === icons[1] && icons[1] === icons[2]) {
-    textPrompt = "Generate ONLY one funny haiku and site and cite an ancient religious or war figure in the form [haiku] - [figure]"
+    textPrompt = "Generate ONLY one pair of latitude and longitue coordinates of a random location where a lesser-known great mystery occured"
     imagePrompt = "Generate a 256x256 stock image of a large non-pig farm animal with a heavenly glow wearing 3 huge hats on top of each other"
   }
   else if (icons[0] === icons[1] || icons[1] === icons[2] || icons[0] === icons[2]) {
-    textPrompt = "Generate ONLY one short, nonsensical funny phrase and cite a politician who isn't a US President past Barack Obama in the form [phrase] - [politician]"
+    textPrompt = "Generate ONLY one short, esoteric phrase from existing literature"
     imagePrompt = "Generate a 256x256 stock image of a small non-pig animal wearing two hats on top of each other"
   }
   else {
-    textPrompt = "Generate ONLY 1 farm animal noise"
+    textPrompt = "Generate ONLY one random uncommon zoo animal noise"
     imagePrompt = "Generate a 256x256 stock image of a small pig wearing a hat"
   }
 
@@ -48,8 +47,8 @@ async function GenerateCardText({ icons }: EmergingCardProps) {
   //   }
   // });
 
-  const { data, error } = await supabase.functions.invoke('gemini-proxy', {
-    body: { name: 'Functions', prompt: textPrompt },
+  const { data } = await supabase.functions.invoke('gemini-proxy', {
+    body: { name: 'Functions', tPrompt: textPrompt },
   });
   textResponse = data.candidates[0].content.parts[0].text;
 
