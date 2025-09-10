@@ -23,6 +23,7 @@ async function GenerateCardText({ icons }: EmergingCardProps) {
   var textPrompt = ""
   var imagePrompt = ""
   var textResponse = ""
+  var imageResponse = ""
 
   if (icons[0] === icons[1] && icons[1] === icons[2]) {
     textPrompt = "Generate ONLY one pair of latitude and longitue coordinates of a random location where a lesser-known great mystery occured"
@@ -37,20 +38,17 @@ async function GenerateCardText({ icons }: EmergingCardProps) {
     imagePrompt = "Generate a 256x256 stock image of a small pig wearing a hat"
   }
 
-  // TODO: move this to supabase
-  // const imageResponse = await imageAI.models.generateContent({
-  //   model: "gemini-2.0-flash-preview-image-generation",
-  //   contents: imagePrompt,
-  //   config: {
-  //     responseModalities: [Modality.TEXT, Modality.IMAGE],
-  //     thinkingConfig: {thinkingBudget: 0}
-  //   }
-  // });
-
-  const { data } = await supabase.functions.invoke('gemini-proxy', {
-    body: { name: 'Functions', tPrompt: textPrompt },
+  // TODO: update response parsing to separate text and image response
+  var { data } = await supabase.functions.invoke('gemini-proxy', {
+    body: { name: 'Functions', tPrompt: textPrompt, iPrompt: imagePrompt },
   });
   textResponse = data.candidates[0].content.parts[0].text;
+
+  // var { data } = await supabase.functions.invoke('gemini-proxy', {
+  //   body: { name: 'Functions', tPrompt: "",  iPrompt: imagePrompt },
+  // });
+  // imageResponse = data;
+  // console.log(data)
 
   return textResponse;
 }
