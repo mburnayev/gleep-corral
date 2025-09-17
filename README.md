@@ -18,9 +18,9 @@ Here is an abstraction of the major project flows that the above text describes:
 ## Technologies Used
 - Typescript + Next.JS
 - Google Gemini Flash 2.5
-- Google Gemini 2.0 Flash Preview Image Generation
 - Supabase Edge Functions
 - Cloudflare R2
+- Cloudflare Workers AI
 - Firebase
     - Studio
     - App Hosting
@@ -36,11 +36,13 @@ Set up new Firebase project | - | ✅
 Create slot machine graphic | - | ✅
 Create slot machine spin animation | - | ✅
 Get API key(s) for Gemini models | generated it ages ago, just never added it | ✅
-Hide API key calling | After some research, found that Supabase has a generous free tier for Edge (Cloud) Functions and made that my calling backend B) | ✅
+Hide API key calling | After some research, found that Supabase has a generous free tier for Edge (Cloud) Functions and made that my calling backend B^) | ✅
 Add API calls to card component for text | phew | ✅
-Refine text prompts to return exactly one result | in progress | -
+Refine text prompts to return exactly one result | No thinking budget sometimes results in bizarre responses, but that'll be a feature and not a bug ;) | ✅
+Deploy app via Firebase hosting | Mystery build error fixed | ✅
+Figure out how to call flux-1-schnell model | in progress | - 
 Add API calls to card component for images | in progress | -
-Deploy app via Firebase hosting | in progress | -
-Create Firestore database and R2 bucket | might choose Supabase for textual storage since I'm using Supabase anyway? Tech stack remains the same size though | -
+Create R2 bucket | in progress | -
+Create Firestore/Supabase database | might choose Supabase for textual storage since I'm using Supabase anyway? | -
 
 
