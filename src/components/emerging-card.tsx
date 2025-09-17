@@ -15,7 +15,7 @@ const supabase = createClient(
 
 type EmergingCardProps = {
   revealed: boolean;
-  onReset: () => void
+  onReset: () => void;
   icons: number[];
 };
 
@@ -39,10 +39,16 @@ async function GenerateCardText({ icons }: EmergingCardProps) {
   }
 
   // TODO: update response parsing to separate text and image response
-  var { data } = await supabase.functions.invoke('gemini-proxy', {
+  var { data, error } = await supabase.functions.invoke('gemini-proxy', {
     body: { name: 'Functions', tPrompt: textPrompt, iPrompt: imagePrompt },
   });
-  textResponse = data.candidates[0].content.parts[0].text;
+
+  if (error) {
+    textResponse = `Supabase function error: ${error.message}`;
+  }
+  else {
+    textResponse = data.candidates[0].content.parts[0].text || 'No text generated';
+  }
 
   // var { data } = await supabase.functions.invoke('gemini-proxy', {
   //   body: { name: 'Functions', tPrompt: "",  iPrompt: imagePrompt },

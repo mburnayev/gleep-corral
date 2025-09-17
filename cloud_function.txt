@@ -1,3 +1,6 @@
+// README:  should be parsed as a TypeScript file; this file was changed to txt to prevent linter errors
+//          but remains important since supabase doesn't have version control
+
 // Edge Function: gemini-proxy with CORS support
 // Set GEMINI_API_KEY as a secret.
 // Optionally set CORS_ALLOWED_ORIGIN (e.g., http://localhost:3000) to restrict origins.

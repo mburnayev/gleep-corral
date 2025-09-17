@@ -13,7 +13,9 @@ const Reel = ({ spinning, finalIconIndex, delay }: { spinning: boolean, finalIco
 
   useEffect(() => {
     if (spinning) {
-      const spinInterval = setInterval(() => { setCurrentIndex(prevIndex => (prevIndex + 1) % icons.length); }, 100);
+      const spinInterval = setInterval(() => {
+        setCurrentIndex(prevIndex => (prevIndex + 1) % icons.length);
+      }, 100);
 
       const stopTimeout = setTimeout(() => {
         clearInterval(spinInterval);
@@ -45,19 +47,26 @@ export function SlotMachine() {
   const [finalIndices, setFinalIndices] = useState<number[]>([0, 0, 0]);
 
   const handleClick = useCallback(() => {
-    if (state === 'spinning') return;
+    if (state === 'spinning') {
+      return;
+    }
 
     if (state === 'revealed') {
       setState('idle');
       return;
     }
 
-    setTimeout(() => { setState('spinning'); }, 100);
+    setTimeout(() => { 
+      setState('spinning'); 
+    }, 100);
 
   }, [state]);
 
   const handleReset = useCallback(() => {
-    if (state === 'revealed') { setState('idle'); } }, [state]);
+    if (state === 'revealed') { 
+      setState('idle'); 
+    }
+  }, [state]);
 
   useEffect(() => {
     if (state === 'spinning') {
@@ -68,7 +77,9 @@ export function SlotMachine() {
       ];
       setFinalIndices(newIndices);
 
-      const timer = setTimeout(() => { setState('revealed'); }, 2000);
+      const timer = setTimeout(() => { 
+        setState('revealed'); 
+      }, 2000);
       return () => clearTimeout(timer);
     }
   }, [state]);
