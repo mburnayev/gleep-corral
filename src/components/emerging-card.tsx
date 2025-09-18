@@ -38,9 +38,8 @@ async function GenerateCardText({ icons }: EmergingCardProps) {
     imagePrompt = "Generate a 256x256 stock image of a small pig wearing a hat"
   }
 
-  // TODO: update response parsing to separate text and image response
   var { data, error } = await supabase.functions.invoke('gemini-proxy', {
-    body: { name: 'Functions', tPrompt: textPrompt, iPrompt: imagePrompt },
+    body: { name: 'Functions', tPrompt: textPrompt, iPrompt: "" },
   });
 
   if (error) {
@@ -48,6 +47,18 @@ async function GenerateCardText({ icons }: EmergingCardProps) {
   }
   else {
     textResponse = data.candidates[0].content.parts[0].text || 'No text generated';
+  }
+
+  var { data, error } = await supabase.functions.invoke('gemini-proxy', {
+    body: { name: 'Functions', tPrompt: "", iPrompt: imagePrompt },
+  });
+
+  if (error) {
+    imageResponse = `Supabase function error: ${error.message}`;
+  }
+  else {
+    console.log(data);
+    // imageResponse = data.candidates[0].content.parts[0].text || 'No text generated';
   }
 
   // var { data } = await supabase.functions.invoke('gemini-proxy', {

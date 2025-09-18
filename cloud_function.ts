@@ -1,11 +1,14 @@
-// README:  should be parsed as a TypeScript file; this file was changed to txt to prevent linter errors
-//          but remains important since supabase doesn't have version control
-
+// README:  should be parsed as a TypeScript file; this file was changed to txt to prevent linter
+//          errors but remains important since supabase doesn't have version control
 // Edge Function: gemini-proxy with CORS support
 // Set GEMINI_API_KEY as a secret.
 // Optionally set CORS_ALLOWED_ORIGIN (e.g., http://localhost:3000) to restrict origins.
-const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent";
 const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY") ?? "";
+const CLOUDFLARE_AUTH_TOKEN = Deno.env.get("CLOUDFLARE_BEARER_TOKEN") ?? "";
+const CLOUDFLARE_API_KEY = Deno.env.get("CLOUDFLARE_WORKERS_AI_API_KEY") ?? "";
+const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
+// const CLOUDFLARE_WORKER_API_URL = `https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_AUTH_TOKEN}/ai/run/@cf/black-forest-labs/flux-1-schnell`;
+const CLOUDFLARE_WORKER_API_URL = "https://api.cloudflare.com/client/v4/accounts/ac73d0deb385956e4d51115c5cb30790/ai/run/@cf/black-forest-labs/flux-1-schnell";
 const CORS_ALLOWED_ORIGIN = Deno.env.get("CORS_ALLOWED_ORIGIN") ?? "*"; // default allow all
 function corsResponse(body, init = {}) {
   const headers = new Headers(init.headers);
@@ -35,21 +38,14 @@ Deno.serve(async (req)=>{
   }
   try {
     const { tPrompt, iPrompt } = await req.json();
-    if (!(tPrompt == "" && iPrompt == "")) {
-      var prompt = tPrompt != "" ? tPrompt : iPrompt;
-      var url = "";
-      if (tPrompt != "") {
-        url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
-      } else {
-        url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent';
-      }
+    if (tPrompt != "") {
       const geminiPayload = {
         contents: [
           {
             role: "user",
             parts: [
               {
-                text: prompt
+                text: tPrompt
               }
             ]
           }
@@ -60,7 +56,7 @@ Deno.serve(async (req)=>{
           }
         }
       };
-      const geminiResponse = await fetch(url, {
+      const geminiResponse = await fetch(GEMINI_API_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -75,9 +71,30 @@ Deno.serve(async (req)=>{
           "Content-Type": "application/json"
         }
       });
+    } 
+    
+    
+    else if (iPrompt != "") {
+      const fixedPrompt = { prompt: JSON.stringify(iPrompt)}
+      const cfWorkerResponse = await fetch(CLOUDFLARE_WORKER_API_URL, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${CLOUDFLARE_AUTH_TOKEN}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(fixedPrompt)
+      });
+      const result = await cfWorkerResponse.json();
+      console.log(result);
+      return corsResponse(JSON.stringify(result), {
+        status: cfWorkerResponse.status,
+        headers: {
+          "Content-Type": "application/json"
+        }
+      });
     } else {
       return corsResponse(JSON.stringify({
-        error: "Missing prompts (tPrompt/iPrompt) in request body"
+        error: "Missing/empty prompts (tPrompt/iPrompt) in request body"
       }), {
         status: 400,
         headers: {
