@@ -3,7 +3,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/card';
+import { Download } from 'lucide-react';
 import { createClient } from '@supabase/supabase-js';
+import html2canvas from 'html2canvas';
 
 const SUPABASE_URL = "https://qunlvbcbdxdbyhzqlzor.supabase.co"
 
@@ -57,6 +59,7 @@ export function EmergingCard({ revealed, onReset, icons }: EmergingCardProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -112,6 +115,43 @@ export function EmergingCard({ revealed, onReset, icons }: EmergingCardProps) {
     generateContent();
     return () => { aborted = true; };
   }, [revealed, icons]);
+
+  const handleDownload = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    if (!cardRef.current || isLoading) return;
+    
+    setIsDownloading(true);
+    
+    try {
+      const originalStyle = cardRef.current.style.transform;
+      cardRef.current.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg)';
+      
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      const canvas = await html2canvas(cardRef.current, {
+        backgroundColor: null,
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+      });
+      
+      cardRef.current.style.transform = originalStyle;
+      
+      const link = document.createElement('a');
+      link.download = `gleep-card-${Date.now()}.png`;
+      link.href = canvas.toDataURL('image/png');
+      
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+    } catch (error) {
+      console.error('Failed to download card:', error);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (isLoading || isTransitioning) return;
@@ -170,8 +210,26 @@ export function EmergingCard({ revealed, onReset, icons }: EmergingCardProps) {
             : 'transform 0.1s ease-out',
           animation: isLoading ? 'spin-y 2s linear infinite' : 'none'
         }}
-        className="w-[384px] h-[512px] bg-black/30 backdrop-blur-sm border-2 border-accent/50 shadow-2xl shadow-accent/20 text-center flex flex-col justify-center items-center"
+        className="w-[384px] h-[512px] bg-black/30 backdrop-blur-sm border-2 border-accent/50 shadow-2xl shadow-accent/20 text-center flex flex-col justify-center items-center relative"
       >
+        {revealed && !isLoading && (
+          <button
+            onClick={handleDownload}
+            disabled={isDownloading}
+            className={cn(
+              "absolute top-4 right-4 z-10",
+              "flex items-center gap-1 px-2 py-1.5",
+              "bg-black/40 hover:bg-black/60 border border-accent/50",
+              "text-accent text-xs font-medium",
+              "rounded-md transition-all duration-200",
+              "disabled:opacity-50 disabled:cursor-not-allowed",
+              "backdrop-blur-sm"
+            )}
+          >
+            <Download size={12} />
+            {isDownloading ? 'Saving...' : 'PNG'}
+          </button>
+        )}
         {isLoading ? (
           <div className="w-full h-full" />
         ) : (

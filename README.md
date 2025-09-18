@@ -21,7 +21,7 @@ Here is an abstraction of the major project flows that the above text describes:
 - Supabase Edge Functions
 - Firebase
     - Studio
-    - App Hosting
+    - Hosting
  
 ## Note
 Cloud storage was secondarily considered when originally brainstorming this project, and as development went on, I decided that that feature/subsystem could be dropped since it wasn't core to the project.
@@ -51,5 +51,4 @@ Create R2 bucket | functionality dropped | ❎
 Create Firestore/Supabase database | functionality dropped | ❎
 Add Base64 data -> image conversion | - | ✅
 Add flair (spinning animation) while generation is occuring | eh, good enough | ✅
-Add means of downloading card | | -
-Publish complete release | | -
+Add means of downloading card | - | ✅
