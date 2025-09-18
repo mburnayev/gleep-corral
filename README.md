@@ -11,13 +11,12 @@ This system is comprised of the following components:
 Users will first be brought to the webapp's main page where they can generate a "gleep" (silly animal). Gleeps come in one of three rarities based on the number of identical slot symbols that are produced when the slot machine is used — once a gleep is made, the user can optionally save them to their computer.
 
 Here is an abstraction of the major project flows that the above text describes:
-<img width="876" height="469" alt="Screenshot 2025-09-18 at 4 55 11 PM" src="https://github.com/user-attachments/assets/291393d1-fc57-4fc1-93c4-22f372e21e67" />
-
+<img width="874" height="472" alt="Screenshot 2025-09-18 at 5 57 46 PM" src="https://github.com/user-attachments/assets/d4a73e1d-2e80-45b6-869b-dac892d7b4c4" />
 
 ## Technologies Used
 - Typescript + Next.JS
 - Google Gemini Flash 2.5
-- Cloudflare Workers AI
+- Cloudflare Workers AI — black-forest-labs/flux-1-schnell
 - Supabase Edge Functions
 - Firebase
     - Studio
