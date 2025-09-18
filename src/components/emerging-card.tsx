@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/card';
 import { createClient } from '@supabase/supabase-js';
@@ -18,11 +18,9 @@ type EmergingCardProps = {
   icons: number[];
 };
 
-async function GenerateCardText({ icons }: EmergingCardProps) {
-  var textPrompt = ""
-  var imagePrompt = ""
-  var textResponse = ""
-  var imageResponse = ""
+async function GenerateCardText({ icons }: Pick<EmergingCardProps, 'icons'>) {
+  let textPrompt = ""
+  let imagePrompt = ""
 
   if (icons[0] === icons[1] && icons[1] === icons[2]) {
     textPrompt = "Generate ONLY one pair of latitude and longitue coordinates of a random location where a lesser-known great mystery occured"
@@ -37,17 +35,17 @@ async function GenerateCardText({ icons }: EmergingCardProps) {
     imagePrompt = "Generate a 300x300 photorealistic stock image of a small pink pig wearing EXACTLY one hat"
   }
 
-  var { data, error } = await supabase.functions.invoke('gemini-proxy', {
+  let { data, error } = await supabase.functions.invoke('gemini-proxy', {
     body: { name: 'Functions', tPrompt: textPrompt, iPrompt: "" },
   });
 
-  textResponse = (error) ? `Supabase function error: ${error.message}` : data.candidates[0].content.parts[0].text;
+  const textResponse = (error) ? `Supabase function error: ${error.message}` : data.candidates[0].content.parts[0].text;
 
-  var { data, error } = await supabase.functions.invoke('gemini-proxy', {
+  ({ data, error } = await supabase.functions.invoke('gemini-proxy', {
     body: { name: 'Functions', tPrompt: "", iPrompt: imagePrompt },
-  });
+  }));
 
-  imageResponse = (error) ? `Supabase function error: ${error.message}` : data;
+  const imageResponse = (error) ? `Supabase function error: ${error.message}` : data;
 
   return [textResponse, imageResponse];
 }
@@ -58,11 +56,13 @@ export function EmergingCard({ revealed, onReset, icons }: EmergingCardProps) {
   const [generatedImage, setGeneratedImage] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let aborted = false;
 
-    async function generateText() {
+    async function generateContent() {
       if (!revealed) return;
 
       setIsLoading(true);
@@ -71,30 +71,51 @@ export function EmergingCard({ revealed, onReset, icons }: EmergingCardProps) {
       setGeneratedImage('');
 
       try {
-        const response = await GenerateCardText({ revealed, onReset, icons });
+        const [text, image] = await GenerateCardText({ icons });
         if (!aborted) {
-          setGeneratedText(response[0] || 'No text generated');
-          setGeneratedImage(response[1] || 'No image generated');
+          setGeneratedText(text || 'No text generated');
+          setGeneratedImage(image || 'No image generated');
+          
+          setIsTransitioning(true);
+          setIsLoading(false);
+          
+          if (cardRef.current) {
+            const card = cardRef.current;
+            card.style.animation = 'none';
+            card.style.transition = 'transform 1s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+            card.style.transform = 'perspective(1000px) rotateY(0deg) rotateX(0deg)';
+          }
+          
+          setRotation({ rotateX: 0, rotateY: 0 });
+          setTimeout(() => setIsTransitioning(false), 1000);
         }
       } catch (err: any) {
         if (!aborted) {
-          setError(err?.message || 'Failed to generate text');
-        }
-      } finally {
-        if (!aborted) {
+          setError(err?.message || 'Failed to generate content');
+          
+          setIsTransitioning(true);
           setIsLoading(false);
+          
+          if (cardRef.current) {
+            const card = cardRef.current;
+            card.style.animation = 'none';
+            card.style.transition = 'transform 1s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+            card.style.transform = 'perspective(1000px) rotateY(0deg) rotateX(0deg)';
+          }
+          
+          setRotation({ rotateX: 0, rotateY: 0 });
+          setTimeout(() => setIsTransitioning(false), 1000);
         }
       }
     }
 
-    generateText();
-
-    return () => {
-      aborted = true;
-    };
-  }, [revealed, icons, onReset]);
+    generateContent();
+    return () => { aborted = true; };
+  }, [revealed, icons]);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (isLoading || isTransitioning) return;
+    
     const card = e.currentTarget;
     const { width, height, left, top } = card.getBoundingClientRect();
     const x = e.clientX - left;
@@ -107,12 +128,9 @@ export function EmergingCard({ revealed, onReset, icons }: EmergingCardProps) {
   };
 
   const handleMouseLeave = () => {
-    setRotation({ rotateX: 0, rotateY: 0 });
-  };
-
-  const cardStyle = {
-    transform: `perspective(1000px) rotateX(${rotation.rotateX}deg) rotateY(${rotation.rotateY}deg)`,
-    transition: 'transform 0.1s ease-out',
+    if (!isLoading && !isTransitioning) {
+      setRotation({ rotateX: 0, rotateY: 0 });
+    }
   };
 
   return (
@@ -130,33 +148,55 @@ export function EmergingCard({ revealed, onReset, icons }: EmergingCardProps) {
       )}
       style={{ perspective: '1000px' }}
     >
+      <style jsx>{`
+        @keyframes spin-y {
+          from {
+            transform: perspective(1000px) rotateY(0deg);
+          }
+          to {
+            transform: perspective(1000px) rotateY(360deg);
+          }
+        }
+      `}</style>
+      
       <Card
-        style={cardStyle}
-        className={cn(
-          'w-[384px] h-[512px] bg-black/30 backdrop-blur-sm border-2 border-accent/50 shadow-2xl shadow-accent/20 text-center flex flex-col justify-center items-center'
-        )}
+        ref={cardRef}
+        style={{
+          transform: isLoading 
+            ? 'perspective(1000px)' 
+            : `perspective(1000px) rotateX(${rotation.rotateX}deg) rotateY(${rotation.rotateY}deg)`,
+          transition: isLoading 
+            ? 'none' 
+            : 'transform 0.1s ease-out',
+          animation: isLoading ? 'spin-y 2s linear infinite' : 'none'
+        }}
+        className="w-[384px] h-[512px] bg-black/30 backdrop-blur-sm border-2 border-accent/50 shadow-2xl shadow-accent/20 text-center flex flex-col justify-center items-center"
       >
-        <CardHeader>
-          <CardTitle className="font-headline text-accent flex items-center gap-2">
-            <h2>Gleep</h2>
-          </CardTitle>
-          {generatedImage && generatedImage.startsWith('data:image/') ? (
-            <img src={generatedImage} alt="Generated Gleep" className="w-64 h-64 object-contain" />
-          ) : (
-            <img src="/test.png" alt="Gleep" />
-          )}
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <p className="text-foreground/60">Generating text...</p>
-          ) : error ? (
-            <p className="text-red-400">Error: {error}</p>
-          ) : generatedText ? (
-            <p className="text-foreground/80 whitespace-pre-wrap">{generatedText}</p>
-          ) : (
-            <p className="text-foreground/60">No text generated</p>
-          )}
-        </CardContent>
+        {isLoading ? (
+          <div className="w-full h-full" />
+        ) : (
+          <>
+            <CardHeader>
+              <CardTitle className="font-headline text-accent flex items-center gap-2">
+                <h2>Gleep</h2>
+              </CardTitle>
+              {generatedImage && generatedImage.startsWith('data:image/') ? (
+                <img src={generatedImage} alt="Generated Gleep" className="w-64 h-64 object-contain" />
+              ) : (
+                <img src="/test.png" alt="Gleep" />
+              )}
+            </CardHeader>
+            <CardContent>
+              {error ? (
+                <p className="text-red-400">Error: {error}</p>
+              ) : generatedText ? (
+                <p className="text-foreground/80 whitespace-pre-wrap">{generatedText}</p>
+              ) : (
+                <p className="text-foreground/60">No text generated</p>
+              )}
+            </CardContent>
+          </>
+        )}
       </Card>
     </div>
   );

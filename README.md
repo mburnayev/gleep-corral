@@ -50,8 +50,6 @@ Add API calls to card component for images | - | ✅
 Create R2 bucket | functionality dropped | ❎
 Create Firestore/Supabase database | functionality dropped | ❎
 Add Base64 data -> image conversion | - | ✅
-Add flair (spinning animation) while generation is occuring | in progress | -
+Add flair (spinning animation) while generation is occuring | eh, good enough | ✅
 Add means of downloading card | | -
 Publish complete release | | -
-
-
