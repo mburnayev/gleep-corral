@@ -11,7 +11,8 @@ This system is comprised of the following components:
 Users will first be brought to the webapp's main page where they can generate a "gleep" (silly animal). Gleeps come in one of three rarities based on the number of identical slot symbols that are produced when the slot machine is used — once a gleep is made, the user can optionally save them to their computer.
 
 Here is an abstraction of the major project flows that the above text describes:
-<img width="948" height="542" alt="Screenshot 2025-06-23 at 1 20 41 PM" src="https://github.com/user-attachments/assets/51c0f68e-16b7-4463-86f2-a26223b6ec05" />
+<img width="876" height="469" alt="Screenshot 2025-09-18 at 4 55 11 PM" src="https://github.com/user-attachments/assets/291393d1-fc57-4fc1-93c4-22f372e21e67" />
+
 
 ## Technologies Used
 - Typescript + Next.JS
