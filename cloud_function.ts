@@ -1,13 +1,9 @@
-// README:  should be parsed as a TypeScript file; this file was changed to txt to prevent linter
-//          errors but remains important since supabase doesn't have version control
-// Edge Function: gemini-proxy with CORS support
-// Set GEMINI_API_KEY as a secret.
+// Edge Function: backend proxy for Gemini and Cloudflare with CORS support
 // Optionally set CORS_ALLOWED_ORIGIN (e.g., http://localhost:3000) to restrict origins.
 const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY") ?? "";
 const CLOUDFLARE_AUTH_TOKEN = Deno.env.get("CLOUDFLARE_BEARER_TOKEN") ?? "";
 const CLOUDFLARE_API_KEY = Deno.env.get("CLOUDFLARE_WORKERS_AI_API_KEY") ?? "";
 const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
-// const CLOUDFLARE_WORKER_API_URL = `https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_AUTH_TOKEN}/ai/run/@cf/black-forest-labs/flux-1-schnell`;
 const CLOUDFLARE_WORKER_API_URL = "https://api.cloudflare.com/client/v4/accounts/ac73d0deb385956e4d51115c5cb30790/ai/run/@cf/black-forest-labs/flux-1-schnell";
 const CORS_ALLOWED_ORIGIN = Deno.env.get("CORS_ALLOWED_ORIGIN") ?? "*"; // default allow all
 function corsResponse(body, init = {}) {
@@ -71,11 +67,10 @@ Deno.serve(async (req)=>{
           "Content-Type": "application/json"
         }
       });
-    } 
-    
-    
-    else if (iPrompt != "") {
-      const fixedPrompt = { prompt: JSON.stringify(iPrompt)}
+    } else if (iPrompt != "") {
+      const fixedPrompt = {
+        prompt: JSON.stringify(iPrompt)
+      };
       const cfWorkerResponse = await fetch(CLOUDFLARE_WORKER_API_URL, {
         method: "POST",
         headers: {
@@ -85,11 +80,10 @@ Deno.serve(async (req)=>{
         body: JSON.stringify(fixedPrompt)
       });
       const result = await cfWorkerResponse.json();
-      console.log(result);
-      return corsResponse(JSON.stringify(result), {
+      return corsResponse(`data:image/png;base64,${result.result.image}`, {
         status: cfWorkerResponse.status,
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "image/png"
         }
       });
     } else {

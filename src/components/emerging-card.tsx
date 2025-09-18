@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/card';
-// import { GoogleGenAI, Modality } from '@google/genai';
 import { createClient } from '@supabase/supabase-js';
 
 const SUPABASE_URL = "https://qunlvbcbdxdbyhzqlzor.supabase.co"
@@ -27,52 +26,36 @@ async function GenerateCardText({ icons }: EmergingCardProps) {
 
   if (icons[0] === icons[1] && icons[1] === icons[2]) {
     textPrompt = "Generate ONLY one pair of latitude and longitue coordinates of a random location where a lesser-known great mystery occured"
-    imagePrompt = "Generate a 256x256 stock image of a large non-pig farm animal with a heavenly glow wearing 3 huge hats on top of each other"
+    imagePrompt = "Generate a 300x300 photorealistic stock image of a large animal with a heavenly glow wearing EXACTLY 3 huge hats on top of each other"
   }
   else if (icons[0] === icons[1] || icons[1] === icons[2] || icons[0] === icons[2]) {
-    textPrompt = "Generate ONLY one short, esoteric phrase from existing literature"
-    imagePrompt = "Generate a 256x256 stock image of a small non-pig animal wearing two hats on top of each other"
+    textPrompt = "Generate ONLY one short, esoteric phrase from existing literature DON'T specify the author"
+    imagePrompt = "Generate a 300x300 photorealistic stock image of a small farm animal that is NOT a pig wearing EXACTLY two hats on top of each other"
   }
   else {
     textPrompt = "Generate ONLY one random uncommon zoo animal noise"
-    imagePrompt = "Generate a 256x256 stock image of a small pig wearing a hat"
+    imagePrompt = "Generate a 300x300 photorealistic stock image of a small pink pig wearing EXACTLY one hat"
   }
 
   var { data, error } = await supabase.functions.invoke('gemini-proxy', {
     body: { name: 'Functions', tPrompt: textPrompt, iPrompt: "" },
   });
 
-  if (error) {
-    textResponse = `Supabase function error: ${error.message}`;
-  }
-  else {
-    textResponse = data.candidates[0].content.parts[0].text || 'No text generated';
-  }
+  textResponse = (error) ? `Supabase function error: ${error.message}` : data.candidates[0].content.parts[0].text;
 
   var { data, error } = await supabase.functions.invoke('gemini-proxy', {
     body: { name: 'Functions', tPrompt: "", iPrompt: imagePrompt },
   });
 
-  if (error) {
-    imageResponse = `Supabase function error: ${error.message}`;
-  }
-  else {
-    console.log(data);
-    // imageResponse = data.candidates[0].content.parts[0].text || 'No text generated';
-  }
+  imageResponse = (error) ? `Supabase function error: ${error.message}` : data;
 
-  // var { data } = await supabase.functions.invoke('gemini-proxy', {
-  //   body: { name: 'Functions', tPrompt: "",  iPrompt: imagePrompt },
-  // });
-  // imageResponse = data;
-  // console.log(data)
-
-  return textResponse;
+  return [textResponse, imageResponse];
 }
 
 export function EmergingCard({ revealed, onReset, icons }: EmergingCardProps) {
   const [rotation, setRotation] = useState({ rotateX: 0, rotateY: 0 });
   const [generatedText, setGeneratedText] = useState<string>('');
+  const [generatedImage, setGeneratedImage] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -85,11 +68,13 @@ export function EmergingCard({ revealed, onReset, icons }: EmergingCardProps) {
       setIsLoading(true);
       setError(null);
       setGeneratedText('');
+      setGeneratedImage('');
 
       try {
         const response = await GenerateCardText({ revealed, onReset, icons });
         if (!aborted) {
-          setGeneratedText(response || 'No text generated');
+          setGeneratedText(response[0] || 'No text generated');
+          setGeneratedImage(response[1] || 'No image generated');
         }
       } catch (err: any) {
         if (!aborted) {
@@ -155,7 +140,11 @@ export function EmergingCard({ revealed, onReset, icons }: EmergingCardProps) {
           <CardTitle className="font-headline text-accent flex items-center gap-2">
             <h2>Gleep</h2>
           </CardTitle>
-          <img src="/test.png" alt="Gleep" />
+          {generatedImage && generatedImage.startsWith('data:image/') ? (
+            <img src={generatedImage} alt="Generated Gleep" className="w-64 h-64 object-contain" />
+          ) : (
+            <img src="/test.png" alt="Gleep" />
+          )}
         </CardHeader>
         <CardContent>
           {isLoading ? (
