@@ -26,15 +26,15 @@ async function GenerateCardText({ icons }: Pick<EmergingCardProps, 'icons'>) {
 
   if (icons[0] === icons[1] && icons[1] === icons[2]) {
     textPrompt = "Generate ONLY one pair of latitude and longitue coordinates of a random location where a lesser-known great mystery occured"
-    imagePrompt = "Generate a 300x300 photorealistic stock image of a large animal with a heavenly glow wearing EXACTLY 3 huge hats on top of each other"
+    imagePrompt = "Generate a 300x300 photorealistic stock image of a small pink pig with a heavenly glow wearing EXACTLY 3 hats on top of each other"
   }
   else if (icons[0] === icons[1] || icons[1] === icons[2] || icons[0] === icons[2]) {
     textPrompt = "Generate ONLY one short, esoteric phrase from existing literature DON'T specify the author"
-    imagePrompt = "Generate a 300x300 photorealistic stock image of a small farm animal that is NOT a pig wearing EXACTLY two hats on top of each other"
+    imagePrompt = "Generate a 300x300 photorealistic stock image of a small pink pig wearing EXACTLY 2 hats on top of each other"
   }
   else {
     textPrompt = "Generate ONLY one random uncommon zoo animal noise"
-    imagePrompt = "Generate a 300x300 photorealistic stock image of a small pink pig wearing EXACTLY one hat"
+    imagePrompt = "Generate a 300x300 photorealistic stock image of a small pink pig wearing EXACTLY 1 hat"
   }
 
   let { data, error } = await supabase.functions.invoke('gemini-proxy', {
