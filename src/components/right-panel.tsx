@@ -33,14 +33,14 @@ export function RightPanel() {
         </CardHeader>
         <CardContent>
           <p className="text-xs text-foreground/60 text-left leading-relaxed">
-            Gleepinator6000 is a silly project I brainstormed to start coding again after a hiatus with
+            Gleep Corral is a silly project I brainstormed to start coding again after a hiatus with
             the goal to explore generative AI in a way that entertained me and those that happen upon it.
             <br></br><br></br>
             The slot machine creates a "gleep" based on the number of identical symbols that appear on the
             reels — the left panel explains the textual and visual prompts used to make the gleeps.
             <br></br><br></br>
             One tiny issue I ran into is that the cloudflare flux-1-schnell model doesn't follow the provisioned
-            prompts as rigorously as other models I tested with, but it's a fair comprimise consider it's free
+            prompts as rigorously as other models I tested with, but it's a fair compromise considering it's free
             and hosted in the cloud.
           </p>
         </CardContent>
